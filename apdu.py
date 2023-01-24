@@ -12,5 +12,5 @@ conn.transmit([0xB0, 0x01, 0x00, 0x00])
 
 # Get the response and print it
 response, sw1, sw2 = conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
-
+azeaze
 print(response, sw1, sw2)
