@@ -4,7 +4,7 @@ print("\"1\" - Incrémenter le compteur de 1")
 print("\"2\" - Décrémenter le compteur de 1")
 print("\"3\" - Initialiser le compteur à votre nombre")
 print("\"4\" - Interroger le compteur")
-choice = int(input("Entrez votre choix (1, 2, 3) : \n"))
+choice = input("Entrez votre choix (1, 2, 3) : \n")
 
 reader = readers()[0]
 conn = reader.createConnection()
@@ -17,9 +17,8 @@ if choice == 1 or choice == 2:
     pin_transformed = []
     pin = str(input("Entrez votre code pin"))
     for i in pin:
-        pin_transformed.append(f"0x{int(i):02x}")
-        print(bytes(int(pin_transformed, 16)))
-    conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, bytes(int(pin_transformed[0], 16)), pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
+        pin_transformed.append(hex(int(i)))
+    conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
     # B0 05 00 00 04 01 02 03 04 7F
     # Increment or Decrement the counter
     conn.transmit([0xB0, hex(choice), 0x00, 0x00])
