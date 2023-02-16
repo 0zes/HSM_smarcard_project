@@ -1,3 +1,7 @@
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Random import get_random_bytes
 from smartcard.System import readers
 from smartcard.util import toHexString, toBytes
 from smartcard.CardRequest import CardRequest
@@ -14,17 +18,17 @@ Title = """
        __     __                   _____       ___________         
       /  \   /  \             _____\    \     /           \        
      /   /| |\   \           /    / \    |   /    _   _    \       
-    /   //   \\   \         |    |  /___/|  /    //   \\    \      
-   /    \_____/    \     ____\    \ |   || /    //     \\    \     
-  /    /\_____/\    \   /    /\    \|___|//     \\_____//     \    
- /    //\_____/\\    \ |    |/ \    \    /       \ ___ /       \   
+    /   //   \\\   \         |    |  /___/|  /    //   \\\    \      
+   /    \_____/    \     ____\    \ |   || /    //     \\\    \     
+  /    /\_____/\    \   /    /\    \|___|//     \\\_____//     \    
+ /    //\_____/\\\    \ |    |/ \    \    /       \ ___ /       \   
 /____/ |       | \____\|\____\ /____/|  /________/|   |\________\  
 |    | |       | |    || |   ||    | | |        | |   | |        | 
 |____|/         \|____| \|___||____|/  |________|/     \|________|                                                                   
 """
 
 
-def connect_reader():
+def select_AID():
     reader = readers()[0]
     conn = reader.createConnection()
     conn.connect()
@@ -70,9 +74,47 @@ def compteur():
     print(response, sw1, sw2)
 
 
+def encrypt_ordonnance(input_file_path, output_file_path, public_key_path):
+    # Charger le contenu du fichier
+    with open(input_file_path, 'rb') as input_file:
+        data = input_file.read()
+
+    # Charger la clé publique RSA
+    with open(public_key_path, 'rb') as public_key_file:
+        public_key = RSA.import_key(public_key_file.read())
+
+    # Chiffrer les données avec la clé publique RSA
+    cipher_rsa = PKCS1_OAEP.new(public_key)
+    encrypted_data = cipher_rsa.encrypt(data)
+
+    # Écrire les données chiffrées dans un fichier de sortie
+    with open(output_file_path, 'wb') as output_file:
+        output_file.write(encrypted_data)
+
+
+def decrypt_ordonnance(input_file_path, output_file_path, private_key_path):
+    # Charger les données chiffrées à partir du fichier d'entrée
+    with open(input_file_path, 'rb') as input_file:
+        encrypted_data = input_file.read()
+
+    # Charger la clé privée RSA
+    with open(private_key_path, 'rb') as private_key_file:
+        private_key = RSA.import_key(private_key_file.read())
+
+    # Déchiffrer les données avec la clé privée RSA
+    cipher_rsa = PKCS1_OAEP.new(private_key)
+    decrypted_data = cipher_rsa.decrypt(encrypted_data)
+
+    # Écrire les données déchiffrées dans un fichier de sortie
+    with open(output_file_path, 'wb') as output_file:
+        output_file.write(decrypted_data)
+
+
 if __name__ == '__main__':
     clear()
     print(Title)
     # print("Appuyer pour valider...", end="\n")
     # input()
-    connect_reader()
+    select_AID()
+    encrypt_ordonnance('ordonnance.txt', 'fichier_chiffré', 'id_rsa.pub')
+    decrypt_ordonnance('fichier_chiffré', 'fichier_déchiffré', 'id_rsa')
