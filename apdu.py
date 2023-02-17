@@ -14,18 +14,19 @@ os.system('color 9')
 def clear(): return os.system('cls')
 
 
-Title = """                                                            
-       __     __                   _____       ___________         
-      /  \   /  \             _____\    \     /           \        
-     /   /| |\   \           /    / \    |   /    _   _    \       
-    /   //   \\\   \         |    |  /___/|  /    //   \\\    \      
-   /    \_____/    \     ____\    \ |   || /    //     \\\    \     
-  /    /\_____/\    \   /    /\    \|___|//     \\\_____//     \    
- /    //\_____/\\\    \ |    |/ \    \    /       \ ___ /       \   
-/____/ |       | \____\|\____\ /____/|  /________/|   |\________\  
-|    | |       | |    || |   ||    | | |        | |   | |        | 
-|____|/         \|____| \|___||____|/  |________|/     \|________|                                                                   
-"""
+Title = '''                                                       
+        _____   ____________          ___________                 
+   _____\    \_ \           \        /           \                
+  /     /|     | \           \      /    _   _    \               
+ /     / /____/|  |    /\     |    /    //   \\\    \             
+|     | |____|/   |   |  |    |   /    //     \\\    \            
+|     |  _____    |    \/     |  /     \\\_____//     \           
+|\     \|\    \  /           /| /       \ ___ /       \           
+| \_____\|    | /___________/ |/________/|   |\________\          
+| |     /____/||           | /|        | |   | |        |         
+ \|_____|    |||___________|/ |________|/     \|________|         
+        |____|/                                                   
+'''
 
 
 def select_AID():
@@ -74,7 +75,7 @@ def compteur():
     print(response, sw1, sw2)
 
 
-def encrypt_ordonnance(input_file_path, output_file_path, public_key_path):
+def RSAencrypt(input_file_path, output_file_path, public_key_path):
     # Charger le contenu du fichier
     with open(input_file_path, 'rb') as input_file:
         data = input_file.read()
@@ -92,7 +93,7 @@ def encrypt_ordonnance(input_file_path, output_file_path, public_key_path):
         output_file.write(encrypted_data)
 
 
-def decrypt_ordonnance(input_file_path, output_file_path, private_key_path):
+def RSAdecrypt(input_file_path, output_file_path, private_key_path):
     # Charger les données chiffrées à partir du fichier d'entrée
     with open(input_file_path, 'rb') as input_file:
         encrypted_data = input_file.read()
@@ -110,11 +111,53 @@ def decrypt_ordonnance(input_file_path, output_file_path, private_key_path):
         output_file.write(decrypted_data)
 
 
+def AESencrypt(input_file_path, output_file_path, key):
+    # Charger le contenu du fichier
+    with open(input_file_path, 'rb') as input_file:
+        data = input_file.read()
+
+    # Générer un vecteur d'initialisation aléatoire
+    iv = get_random_bytes(AES.block_size)
+
+    # Chiffrer les données avec la clé AES et le vecteur d'initialisation
+    cipher_aes = AES.new(key, AES.MODE_CBC, iv)
+    ciphertext = cipher_aes.encrypt(data)
+
+    # Écrire les données chiffrées dans un fichier de sortie
+    with open(output_file_path, 'wb') as output_file:
+        output_file.write(iv)
+        output_file.write(ciphertext)
+
+
+def AESdecrypt(input_file_path, output_file_path, key):
+    # Charger les données chiffrées à partir du fichier d'entrée
+    with open(input_file_path, 'rb') as input_file:
+        iv = input_file.read(AES.block_size)
+        ciphertext = input_file.read()
+
+    # Déchiffrer les données avec la clé AES et le vecteur d'initialisation
+    cipher_aes = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_data = cipher_aes.decrypt(ciphertext)
+
+    # Écrire les données déchiffrées dans un fichier de sortie
+    with open(output_file_path, 'wb') as output_file:
+        output_file.write(decrypted_data)
+
+
+def join_art(s1, s2, str_between=''):
+    lines1 = s1.split('\n')
+    lines2 = s2.split('\n')
+    max_dist = max([len(s) for s in lines1])
+    f_str = '{:<' + str(max_dist) + '}{}{}'
+    s3 = "\n".join([f_str.format(str1, str_between, str2) for str1, str2 in zip(lines1, lines2)])
+    return s3
+
+
 if __name__ == '__main__':
     clear()
     print(Title)
-    # print("Appuyer pour valider...", end="\n")
-    # input()
+    print("Appuyer pour valider...", end="\n")
+    input()
     select_AID()
-    encrypt_ordonnance('ordonnance.txt', 'fichier_chiffré', 'id_rsa.pub')
-    decrypt_ordonnance('fichier_chiffré', 'fichier_déchiffré', 'id_rsa')
+    # encrypt('ordonnance.txt', 'fichier_chiffré', 'id_rsa.pub')
+    # decrypt('fichier_chiffré', 'fichier_déchiffré', 'id_rsa')
