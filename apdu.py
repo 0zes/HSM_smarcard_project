@@ -33,8 +33,9 @@ def select_AID():
     reader = readers()[0]
     conn = reader.createConnection()
     conn.connect()
-    select_AID = toBytes('00 A4 04 00 06 11 22 33 44 55 66')
-    conn.transmit(select_AID)
+    AID = toBytes('00 A4 04 00 06 11 22 33 44 55 66')
+    data, sw1, sw2 = conn.transmit(AID)
+    return conn
 
 
 def compteur():
@@ -42,24 +43,26 @@ def compteur():
     print("\"2\" - Décrémenter le compteur de 1")
     print("\"3\" - Initialiser le compteur à votre nombre")
     print("\"4\" - Interroger le compteur")
-    choice = input("Entrez votre choix (1, 2, 3) : \n")
+    choice = int(input("Entrez votre choix (1, 2, 3) : \n"))
 
-    if choice == 1 or choice == 2:
+    # if choice == 1 or choice == 2:
+    #     pin_transformed = []
+    #     pin = str(input("Entrez votre code pin"))
+    #     for i in pin:
+    #         from smartcard.CardRequest import CardRequest
+    #         pin_transformed.append(hex(int(i)))
+    #     conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
+    #     # B0 05 00 00 04 01 02 03 04 7F
+    #     # Increment or Decrement ² counter
+    #     conn.transmit([0xB0, hex(choice), 0x00, 0x00])
+
+    if choice == 3:
         pin_transformed = []
         pin = str(input("Entrez votre code pin"))
         for i in pin:
-            from smartcard.CardRequest import CardRequest
-            pin_transformed.append(hex(int(i)))
-        conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
-        # B0 05 00 00 04 01 02 03 04 7F
-        # Increment or Decrement ² counter
-        conn.transmit([0xB0, hex(choice), 0x00, 0x00])
-
-    elif choice == 3:
-        pin_transformed = []
-        pin = str(input("Entrez votre code pin"))
-        for i in pin:
-            pin_transformed.append(hex(int(i)))
+            pin_transformed.append(format(int(i), '#04x'))
+            print(pin_transformed)
+        # toBytes('B0 05 00 00 04' + pin_transformed[0])
         conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
         # Initialise the counter
         conn.transmit([0x00, 0xA4, 0x04, 0x00, 0x06, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66])
@@ -68,7 +71,9 @@ def compteur():
 
     elif choice == 4:
         # Get the number in the counter
-        conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
+        data, sw1, sw2 = conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
+        print('Réponse : ' + toHexString(response))
+        print('Code de statut : ' + toHexString([sw1, sw2]))
 
     # Get the response and print it
     response, sw1, sw2 = conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
@@ -144,20 +149,12 @@ def AESdecrypt(input_file_path, output_file_path, key):
         output_file.write(decrypted_data)
 
 
-def join_art(s1, s2, str_between=''):
-    lines1 = s1.split('\n')
-    lines2 = s2.split('\n')
-    max_dist = max([len(s) for s in lines1])
-    f_str = '{:<' + str(max_dist) + '}{}{}'
-    s3 = "\n".join([f_str.format(str1, str_between, str2) for str1, str2 in zip(lines1, lines2)])
-    return s3
-
-
 if __name__ == '__main__':
     clear()
     print(Title)
     print("Appuyer pour valider...", end="\n")
     input()
-    select_AID()
+    conn = select_AID()
+    compteur()
     # encrypt('ordonnance.txt', 'fichier_chiffré', 'id_rsa.pub')
     # decrypt('fichier_chiffré', 'fichier_déchiffré', 'id_rsa')
