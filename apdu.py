@@ -8,24 +8,24 @@ from smartcard.CardRequest import CardRequest
 from smartcard.CardType import ATRCardType
 import sys
 import os
-#from tabulate import tabulate
+# from tabulate import tabulate
 
 os.system('color 9')
 def clear(): return os.system('cls')
 
 
-Title = '''                                                       
-        _____   ____________          ___________                 
-   _____\    \_ \           \        /           \                
-  /     /|     | \           \      /    _   _    \               
- /     / /____/|  |    /\     |    /    //   \\\    \             
-|     | |____|/   |   |  |    |   /    //     \\\    \            
-|     |  _____    |    \/     |  /     \\\_____//     \           
-|\     \|\    \  /           /| /       \ ___ /       \           
-| \_____\|    | /___________/ |/________/|   |\________\          
-| |     /____/||           | /|        | |   | |        |         
- \|_____|    |||___________|/ |________|/     \|________|         
-        |____|/                                                   
+Title = '''
+        _____   ____________          ___________
+   _____\    \_ \           \        /           \ 
+  /     /|     | \           \      /    _   _    \ 
+ /     / /____/|  |    /\     |    /    //   \\\    \ 
+|     | |____|/   |   |  |    |   /    //     \\\    \ 
+|     |  _____    |    \/     |  /     \\\_____//     \ 
+|\     \|\    \  /           /| /       \ ___ /       \ 
+| \_____\|    | /___________/ |/________/|   |\________\ 
+| |     /____/||           | /|        | |   | |        |
+ \|_____|    |||___________|/ |________|/     \|________|
+        |____|/
 '''
 
 
@@ -56,28 +56,27 @@ def compteur():
     #     # Increment or Decrement ² counter
     #     conn.transmit([0xB0, hex(choice), 0x00, 0x00])
 
-    if choice == 3:
-        pin_transformed = []
-        pin = str(input("Entrez votre code pin"))
-        for i in pin:
-            pin_transformed.append(format(int(i), '#04x'))
-            print(pin_transformed)
-        # toBytes('B0 05 00 00 04' + pin_transformed[0])
-        conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
-        # Initialise the counter
-        conn.transmit([0x00, 0xA4, 0x04, 0x00, 0x06, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66])
-        num = input("Entrez le nombre de votre choix (max 255) :")
-        conn.transmit([0xB0, 0x04, hex(num), 0x00])
+    # if choice == 3:
+    #     pin = input("Entrez votre code pin")
+    #     pin_list = [int(i) for i in pin]
+    #     debut_init = toBytes('B0 05 00 00 04' + toHexString(pin_list) + '7F')
+    #     conn.transmit(debut_init)
+    #     # conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
+    #     # Initialise the counter
+    #     conn.transmit([0x00, 0xA4, 0x04, 0x00, 0x06, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66])
+    #     num = int(input("Entrez le nombre de votre choix (max 255) :"))
+    #     conn.transmit([0xB0, 0x04, hex(num), 0x00])
 
-    elif choice == 4:
+    if choice == 4:
         # Get the number in the counter
-        data, sw1, sw2 = conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
-        print('Réponse : ' + toHexString(response))
+        GET_COUNTER = toBytes('B0 03 00 00 01')
+        data, sw1, sw2 = conn.transmit(GET_COUNTER)
+        print('Réponse : ' + toHexString(data))
         print('Code de statut : ' + toHexString([sw1, sw2]))
 
     # Get the response and print it
-    response, sw1, sw2 = conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
-    print(response, sw1, sw2)
+    # response, sw1, sw2 = conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
+    # print(response, sw1, sw2)
 
 
 def RSAencrypt(input_file_path, output_file_path, public_key_path):
@@ -152,8 +151,8 @@ def AESdecrypt(input_file_path, output_file_path, key):
 if __name__ == '__main__':
     clear()
     print(Title)
-    print("Appuyer pour valider...", end="\n")
-    input()
+    # print("Appuyer pour valider...", end="\n")
+    # input()
     conn = select_AID()
     compteur()
     # encrypt('ordonnance.txt', 'fichier_chiffré', 'id_rsa.pub')
