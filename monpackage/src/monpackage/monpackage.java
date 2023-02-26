@@ -1,6 +1,8 @@
 package monpackage;
 
 import javacard.framework.*;
+import javacard.security.*;
+import javacardx.crypto.*;
 
 public class monpackage extends Applet
 {
@@ -23,12 +25,18 @@ public class monpackage extends Applet
     OwnerPIN pin;
     private byte counter;
     private byte[] user_pin = {0x01, 0x02, 0x03, 0x04};
+    
+    
+    private InitializedMessageDigest sha1;
+    private InitializedMessageDigest sha256;
+    private InitializedMessageDigest sha512;
 	
     private monpackage() {
-        counter=0;
-        //Pin creation
-        pin = new OwnerPIN(PIN_TRY_LIMIT, MAX_PIN_SIZE);
-        pin.update(user_pin, (short) 0, (byte) user_pin.length);
+		sha1 = MessageDigest.getInitializedMessageDigestInstance(javacard.security.MessageDigest.ALG_SHA, false);
+		//Creates a InitializedMessageDigest object instance of the ALG_SHA_256 algorithm.
+		sha256 = MessageDigest.getInitializedMessageDigestInstance(MessageDigest.ALG_SHA_256, false);
+		//Creates a InitializedMessageDigest object instance of the ALG_SHA_512 algorithm.
+		sha512 = MessageDigest.getInitializedMessageDigestInstance(MessageDigest.ALG_SHA_512, false);
     }
 
 	public static void install(byte[] bArray, short bOffset, byte bLength) 
