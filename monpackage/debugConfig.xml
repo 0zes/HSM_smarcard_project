@@ -1,7 +1,7 @@
 <JavaCardProject name="monpackage">
 <USER>
-<PKG name="monpackage" aid="11 22 33 44 55" major="1" minor="0">
-<APPLET aid="11 22 33 44 55 66" instanceaid="" parameter="" authority="" privileges="" index="13640" name="monpackage"/>
+<PKG name="monpackage" aid="11 22 33 44 55 66" major="1" minor="0">
+<APPLET aid="11 22 33 44 55 66 00" instanceaid="" parameter="" authority="" privileges="" index="-8496" name="monpackage"/>
 </PKG>
 <Libs/>
 </USER>
