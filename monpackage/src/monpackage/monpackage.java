@@ -23,12 +23,12 @@ public class monpackage extends Applet
     private static final byte[] cleSession = {(byte)0x11, (byte)0x22, (byte)0x33, (byte)0x44, (byte)0x55, (byte)0x66, (byte)0x77, (byte)0x88, 
 												(byte)0x99, (byte)0xAA, (byte)0xBB, (byte)0xCC, (byte)0xDD, (byte)0xEE, (byte)0xFF, (byte)0x00};
     private AESKey elementSecretPatient = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES_TRANSIENT_DESELECT, KeyBuilder.LENGTH_AES_256, false);
-    
     private Cipher cipher;
     private OwnerPIN pin;
     private byte counter;
     private byte[] user_pin = {0x01, 0x02, 0x03, 0x04};
 	byte[] key = {0x2d, 0x2a, 0x2d, 0x42, 0x55, 0x49, 0x4c, 0x44, 0x41, 0x43, 0x4f, 0x44, 0x45, 0x2d, 0x2a, 0x2d};
+    
     private monpackage() {
         counter=0;
         //Pin creation
