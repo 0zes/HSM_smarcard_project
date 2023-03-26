@@ -1,8 +1,6 @@
 package monpackage;
 
 import javacard.framework.*;
-import javacard.security.*;
-import javacardx.crypto.*;
 
 public class monpackage extends Applet
 {
@@ -10,20 +8,17 @@ public class monpackage extends Applet
 	public static final byte CLA_MONPACKAGE= (byte) 0xB0;
 	
 	// INS declaration
-    public static final byte INS_SEND_INFO= (byte) 0x01;
-    public static final byte INS_VERIFY_PIN= (byte) 0x02;
+    public static final byte INS_INCREMENTER_COUNTER= (byte) 0x01;
+    public static final byte INS_DECREMENTER_COUNTER= (byte) 0x02;
+    public static final byte INS_INTERROGER_COUNTER= (byte) 0x03;
+    public static final byte INS_INITIALISER_COUNTER= (byte) 0x04;
+    public static final byte INS_VERIFY_PIN= (byte) 0x05;
     
     // PIN related declaration
     final static byte PIN_TRY_LIMIT = (byte) 0x03;
     final static byte MAX_PIN_SIZE = (byte) 0x04;
     final static short SW_VERIFICATION_FAILED = 0x6300;
     final static short SW_PIN_VERIFICATION_REQUIRED = (short) 0x9004;
-    
-    // Définition des constantes et des variables nécessaires
-    private static final byte[] cleSession = {(byte)0x11, (byte)0x22, (byte)0x33, (byte)0x44, (byte)0x55, (byte)0x66, (byte)0x77, (byte)0x88, 
-												(byte)0x99, (byte)0xAA, (byte)0xBB, (byte)0xCC, (byte)0xDD, (byte)0xEE, (byte)0xFF, (byte)0x00};
-    private Key elementSecretPatient = KeyBuilder.buildKey(KeyBuilder.TYPE_AES_TRANSIENT_DESELECT, KeyBuilder.LENGTH_AES_256, false);
-    private Cipher cipher;
     
     OwnerPIN pin;
     private byte counter;
@@ -34,7 +29,6 @@ public class monpackage extends Applet
         //Pin creation
         pin = new OwnerPIN(PIN_TRY_LIMIT, MAX_PIN_SIZE);
         pin.update(user_pin, (short) 0, (byte) user_pin.length);
-        
     }
 
 	public static void install(byte[] bArray, short bOffset, byte bLength) 
@@ -54,14 +48,7 @@ public class monpackage extends Applet
 
     public void deselect() {
         pin.reset();
-    }
-    
-    public byte[] encryptCleSession(byte[] data, Key key) {
-		cipher = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
-		cipher.init(key, Cipher.MODE_ENCRYPT);
-		byte[] encryptedData = new byte[16];
-		cipher.doFinal(data, (short)0, (short)16, encryptedData, (short)0);
-		return encryptedData;
+
     }
     
 	public void process(APDU apdu)
@@ -82,17 +69,33 @@ public class monpackage extends Applet
 		case (byte)0x00:  
 			break;
 			
-		case INS_SEND_INFO:
+		case INS_INCREMENTER_COUNTER:
 			if (!pin.isValidated()) {
 				ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
 			}
-            byte[] encryptedCleSession = encryptCleSession(cleSession, elementSecretPatient);
-            
-			apdu.setOutgoing();
-			apdu.setOutgoingLength((short)encryptedCleSession.length);
-			apdu.sendBytesLong(encryptedCleSession, (short)0, (short)encryptedCleSession.length);
+            counter++;
             break;
             
+        case INS_DECREMENTER_COUNTER:
+			if (!pin.isValidated()) {
+				ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
+			}
+            counter--;
+            break;
+            
+        case INS_INTERROGER_COUNTER:
+            buf[2]=counter;
+            apdu.setOutgoingAndSend((short)2, (short)1);
+            break;
+            
+        case INS_INITIALISER_COUNTER:
+        	if (!pin.isValidated()) {
+				ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
+			}
+            apdu.setIncomingAndReceive();
+            counter=buf[ISO7816.OFFSET_P1];
+            break;
+        
         case INS_VERIFY_PIN:
         	byte[] buffer = apdu.getBuffer();
 			// retrieve the PIN data for validation.
