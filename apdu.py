@@ -1,4 +1,3 @@
-from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
@@ -28,6 +27,8 @@ Title = '''
         |____|/
 '''
 
+elementSecretMedecin = ''
+
 
 def select_AID():
     reader = readers()[0]
@@ -39,44 +40,12 @@ def select_AID():
 
 
 def compteur():
-    print("\"1\" - Incrémenter le compteur de 1")
-    print("\"2\" - Décrémenter le compteur de 1")
-    print("\"3\" - Initialiser le compteur à votre nombre")
-    print("\"4\" - Interroger le compteur")
-    choice = int(input("Entrez votre choix (1, 2, 3) : \n"))
-
-    # if choice == 1 or choice == 2:
-    #     pin_transformed = []
-    #     pin = str(input("Entrez votre code pin"))
-    #     for i in pin:
-    #         from smartcard.CardRequest import CardRequest
-    #         pin_transformed.append(hex(int(i)))
-    #     conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
-    #     # B0 05 00 00 04 01 02 03 04 7F
-    #     # Increment or Decrement ² counter
-    #     conn.transmit([0xB0, hex(choice), 0x00, 0x00])
-
-    # if choice == 3:
-    #     pin = input("Entrez votre code pin")
-    #     pin_list = [int(i) for i in pin]
-    #     debut_init = toBytes('B0 05 00 00 04' + toHexString(pin_list) + '7F')
-    #     conn.transmit(debut_init)
-    #     # conn.transmit([0xB0, 0x05, 0x00, 0x00, 0x04, pin_transformed[0], pin_transformed[1], pin_transformed[2], pin_transformed[3], 0x7F])
-    #     # Initialise the counter
-    #     conn.transmit([0x00, 0xA4, 0x04, 0x00, 0x06, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66])
-    #     num = int(input("Entrez le nombre de votre choix (max 255) :"))
-    #     conn.transmit([0xB0, 0x04, hex(num), 0x00])
-
     if choice == 4:
         # Get the number in the counter
         GET_COUNTER = toBytes('B0 03 00 00 01')
         data, sw1, sw2 = conn.transmit(GET_COUNTER)
         print('Réponse : ' + toHexString(data))
         print('Code de statut : ' + toHexString([sw1, sw2]))
-
-    # Get the response and print it
-    # response, sw1, sw2 = conn.transmit([0xB0, 0x03, 0x00, 0x00, 0x01])
-    # print(response, sw1, sw2)
 
 
 def RSAencrypt(input_file_path, output_file_path, public_key_path):
@@ -151,9 +120,12 @@ def AESdecrypt(input_file_path, output_file_path, key):
 if __name__ == '__main__':
     clear()
     print(Title)
-    # print("Appuyer pour valider...", end="\n")
-    # input()
-    conn = select_AID()
-    compteur()
-    # encrypt('ordonnance.txt', 'fichier_chiffré', 'id_rsa.pub')
-    # decrypt('fichier_chiffré', 'fichier_déchiffré', 'id_rsa')
+    while True:
+        conn = select_AID()
+        encrypt('ordonnance.txt', 'fichier_chiffré', 'id_rsa.pub')
+        decrypt('fichier_chiffré', 'fichier_déchiffré', 'id_rsa')
+        cardtype = AnyCardType()
+
+        cardrequest = CardRequest(timeout=1, cardType=cardtype)
+
+        cardservice = cardrequest.waitforcard()
