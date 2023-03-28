@@ -6,10 +6,10 @@ import javacardx.crypto.*;
 
 public class monpackage extends Applet
 {
-	// CLA byte declaration
-	public static final byte CLA_MONPACKAGE= (byte) 0xB0;
+    // CLA byte declaration
+    public static final byte CLA_MONPACKAGE= (byte) 0xB0;
 	
-	// INS declaration
+    // INS declaration
     public static final byte INS_SEND_INFO= (byte) 0x01;
     public static final byte INS_VERIFY_PIN= (byte) 0x02;
     
@@ -19,7 +19,7 @@ public class monpackage extends Applet
     final static short SW_VERIFICATION_FAILED = 0x6300;
     final static short SW_PIN_VERIFICATION_REQUIRED = (short) 0x9004;
     
-    // Définition des constantes et des variables nécessaires
+    // DÃ©finition des constantes et des variables nÃ©cessaires
     private static final byte[] cleSession = {(byte)0x11, (byte)0x22, (byte)0x33, (byte)0x44, (byte)0x55, (byte)0x66, (byte)0x77, (byte)0x88, 
 												(byte)0x99, (byte)0xAA, (byte)0xBB, (byte)0xCC, (byte)0xDD, (byte)0xEE, (byte)0xFF, (byte)0x00};
     private AESKey elementSecretPatient = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES_TRANSIENT_DESELECT, KeyBuilder.LENGTH_AES_256, false);
